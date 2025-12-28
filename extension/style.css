@@ -1,0 +1,27 @@
+body {
+  font-family: Arial, sans-serif;
+  width: 320px;
+  padding: 10px;
+}
+
+button {
+  width: 100%;
+  margin: 6px 0;
+  padding: 8px;
+  cursor: pointer;
+}
+
+#quizCount {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+#output {
+  margin-top: 10px;
+  font-size: 13px;
+  max-height: 260px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  border-top: 1px solid #ddd;
+  padding-top: 6px;
+}

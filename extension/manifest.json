@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "AI Learning Assistant",
+  "version": "1.0",
+  "description": "Generate summaries, flashcards, and quizzes from selected text using AI.",
+  "permissions": ["activeTab", "scripting"],
+  "host_permissions": ["*://*/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "AI Learning Assistant"
+  }
+}

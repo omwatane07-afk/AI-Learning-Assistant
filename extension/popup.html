@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>AI Learning Assistant</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h3>AI Learning Assistant</h3>
+
+    <label>Number of quiz questions:</label>
+    <input id="quizCount" type="number" min="1" max="20" value="5" />
+
+    <button id="summaryBtn">Generate Summary</button>
+    <button id="flashcardBtn">Generate Flashcards</button>
+    <button id="quizBtn">Generate Quiz</button>
+
+    <div id="output"></div>
+
+    <!-- QUIZ INTERACTIVE AREA -->
+    <div id="quizArea" style="display: none; margin-top: 10px;">
+      <div id="quizQuestion" style="font-weight: bold; margin-bottom: 6px;"></div>
+
+      <div id="quizOptions"></div>
+
+      <button id="submitAnswerBtn" style="margin-top: 6px;">Submit Answer</button>
+      <button id="nextQuestionBtn" style="margin-top: 6px; display: none;">
+        Next Question
+      </button>
+
+      <div id="quizFeedback" style="margin-top: 6px; font-size: 13px;"></div>
+      <div id="quizProgress" style="margin-top: 4px; font-size: 12px;"></div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
