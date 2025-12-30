@@ -1,34 +1,55 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <title>AI Learning Assistant</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <h3>AI Learning Assistant</h3>
+    <div class="container">
+      <h1>AI Learning Assistant</h1>
 
-    <label>Number of quiz questions:</label>
-    <input id="quizCount" type="number" min="1" max="20" value="5" />
+      <label for="topicTitle">Topic title (optional)</label>
+      <input
+        type="text"
+        id="topicTitle"
+        placeholder="e.g. Linear Regression basics"
+      />
 
-    <button id="summaryBtn">Generate Summary</button>
-    <button id="flashcardBtn">Generate Flashcards</button>
-    <button id="quizBtn">Generate Quiz</button>
+      <label for="selectedText">Selected text</label>
+      <textarea
+        id="selectedText"
+        placeholder="Select text on the page or paste here..."
+      ></textarea>
 
-    <div id="output"></div>
+      <div class="buttons">
+        <button id="summaryBtn">Summary</button>
+        <button id="flashcardsBtn">Flashcards</button>
+        <button id="quizBtn">Quiz</button>
+      </div>
 
-    <!-- QUIZ INTERACTIVE AREA -->
-    <div id="quizArea" style="display: none; margin-top: 10px;">
-      <div id="quizQuestion" style="font-weight: bold; margin-bottom: 6px;"></div>
+      <div id="output"></div>
 
-      <div id="quizOptions"></div>
+      <div class="links-row">
+        <button id="historyBtn" class="link-button">View history</button>
+      </div>
 
-      <button id="submitAnswerBtn" style="margin-top: 6px;">Submit Answer</button>
-      <button id="nextQuestionBtn" style="margin-top: 6px; display: none;">
-        Next Question
-      </button>
-
-      <div id="quizFeedback" style="margin-top: 6px; font-size: 13px;"></div>
-      <div id="quizProgress" style="margin-top: 4px; font-size: 12px;"></div>
+      <div id="historySection" class="hidden">
+        <h2>Recent activity</h2>
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Topic</th>
+              <th>Summary</th>
+              <th>Flashcards</th>
+              <th>Quiz</th>
+              <th>Score</th>
+              <th>When</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
     <script src="popup.js"></script>

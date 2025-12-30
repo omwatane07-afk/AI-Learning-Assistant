@@ -1,27 +1,118 @@
 body {
-  font-family: Arial, sans-serif;
-  width: 320px;
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  width: 380px;
+}
+
+.container {
   padding: 10px;
 }
 
-button {
-  width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  cursor: pointer;
+h1 {
+  font-size: 18px;
+  margin: 0 0 8px;
 }
 
-#quizCount {
+h2 {
+  font-size: 14px;
+  margin: 8px 0 4px;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+#topicTitle {
   width: 100%;
+  padding: 6px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  box-sizing: border-box;
+}
+
+#selectedText {
+  width: 100%;
+  height: 90px;
+  box-sizing: border-box;
+  font-size: 12px;
+  padding: 6px;
   margin-bottom: 8px;
 }
 
+.buttons {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+button {
+  flex: 1;
+  padding: 6px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
 #output {
-  margin-top: 10px;
-  font-size: 13px;
-  max-height: 260px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  border-top: 1px solid #ddd;
+  font-size: 12px;
+  margin-top: 8px;
+  white-space: normal;
+}
+
+/* history button + table */
+.links-row {
+  margin-top: 4px;
+  text-align: right;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+#historySection {
+  margin-top: 8px;
+  max-height: 220px;
+  overflow: auto;
+  border-top: 1px solid #e5e7eb;
   padding-top: 6px;
+}
+
+#historySection.hidden {
+  display: none;
+}
+
+#historyTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+#historyTable th,
+#historyTable td {
+  border: 1px solid #e5e7eb;
+  padding: 3px;
+  text-align: left;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  color: #fff;
+}
+
+.badge.yes {
+  background-color: #16a34a;
+}
+
+.badge.no {
+  background-color: #9ca3af;
 }
