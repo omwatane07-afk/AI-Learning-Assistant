@@ -13,6 +13,13 @@ app.use(express.json());
 
 // -------- Perplexity helper --------
 
+/**
+ * Calls the Perplexity API to generate text based on the provided messages.
+ * 
+ * @param {Array<{role: string, content: string}>} messages - The conversation history.
+ * @returns {Promise<string>} The generated content from the Perplexity API.
+ * @throws {Error} Throws an error if the API request fails.
+ */
 async function callPerplexity(messages) {
   const response = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
@@ -28,13 +35,12 @@ async function callPerplexity(messages) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Perplexity API error:", errorText);
-    throw new Error("Perplexity API request failed");
+    console.error("Error calling Perplexity API:", errorText);
+    throw new Error(`Perplexity API request failed: ${errorText}`);
   }
 
-  const data = await response.json();
-  console.log("PPLX RAW:", JSON.stringify(data));
-  return data.choices?.[0]?.message?.content || "";
+  const perplexityResponse = await response.json();
+  return perplexityResponse.choices?.[0]?.message?.content || "";
 }
 
 // -------- Snowflake connection --------
@@ -90,9 +96,20 @@ sfConnection.connect((err, conn) => {
   }
 });
 
+/**
+ * Logs a user's learning session into Snowflake.
+ * 
+ * @param {Object} sessionDetails - Details of the learning session.
+ * @param {string} [sessionDetails.topicTitle] - The title of the topic studied.
+ * @param {boolean} [sessionDetails.hasSummary] - Whether a summary was generated.
+ * @param {boolean} [sessionDetails.hasFlashcards] - Whether flashcards were generated.
+ * @param {boolean} [sessionDetails.hasQuiz] - Whether a quiz was generated.
+ * @param {number|null} [sessionDetails.quizScore] - The score obtained in the quiz.
+ * @returns {Promise<void>} Resolves when the logging is complete.
+ */
 function logHistory({ topicTitle, hasSummary, hasFlashcards, hasQuiz, quizScore }) {
   return new Promise((resolve, reject) => {
-    const sql = `
+    const sqlText = `
       INSERT INTO LEARNING_HISTORY
         (USER_ID, TOPIC_TITLE, SOURCE_URL, HAS_SUMMARY, HAS_FLASHCARDS, HAS_QUIZ, QUIZ_SCORE)
       VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -109,10 +126,13 @@ function logHistory({ topicTitle, hasSummary, hasFlashcards, hasQuiz, quizScore 
     ];
 
     sfConnection.execute({
-      sqlText: sql,
+      sqlText,
       binds,
       complete: (err) => {
-        if (err) return reject(err);
+        if (err) {
+          console.error("Error executing Snowflake INSERT:", err);
+          return reject(err);
+        }
         resolve();
       },
     });
@@ -121,11 +141,16 @@ function logHistory({ topicTitle, hasSummary, hasFlashcards, hasQuiz, quizScore 
 
 // -------- Routes --------
 
+/**
+ * POST /summary
+ * Generates a bulleted summary of the provided text.
+ */
 app.post("/summary", async (req, res) => {
   try {
     const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "Missing required text field" });
 
-    const content = await callPerplexity([
+    const generatedMessage = await callPerplexity([
       {
         role: "system",
         content: "You are a helpful assistant that summarizes content for students.",
@@ -136,18 +161,23 @@ app.post("/summary", async (req, res) => {
       },
     ]);
 
-    res.json({ summary: content });
+    res.json({ summary: generatedMessage });
   } catch (error) {
-    console.error("/summary error:", error);
+    console.error("Error in /summary route:", error.message || error);
     res.status(500).json({ error: "Failed to generate summary" });
   }
 });
 
+/**
+ * POST /flashcards
+ * Generates flashcards based on the provided text.
+ */
 app.post("/flashcards", async (req, res) => {
   try {
     const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "Missing required text field" });
 
-    const content = await callPerplexity([
+    const generatedMessage = await callPerplexity([
       {
         role: "system",
         content: "You are a helpful assistant that creates flashcards for revision.",
@@ -163,18 +193,23 @@ ${text}`,
       },
     ]);
 
-    res.json({ flashcards: content });
+    res.json({ flashcards: generatedMessage });
   } catch (error) {
-    console.error("/flashcards error:", error);
+    console.error("Error in /flashcards route:", error.message || error);
     res.status(500).json({ error: "Failed to generate flashcards" });
   }
 });
 
+/**
+ * POST /quiz
+ * Generates a multiple-choice quiz based on the provided text.
+ */
 app.post("/quiz", async (req, res) => {
   try {
     const { text } = req.body;
+    if (!text) return res.status(400).json({ error: "Missing required text field" });
 
-    const content = await callPerplexity([
+    const generatedMessage = await callPerplexity([
       {
         role: "system",
         content: "You are a helpful assistant that creates quizzes for students.",
@@ -190,15 +225,19 @@ ${text}`,
       },
     ]);
 
-    res.json({ quiz: content });
+    res.json({ quiz: generatedMessage });
   } catch (error) {
-    console.error("/quiz error:", error);
+    console.error("Error in /quiz route:", error.message || error);
     res.status(500).json({ error: "Failed to generate quiz" });
   }
 });
 
 // ---- logging + history APIs ----
 
+/**
+ * POST /log-session
+ * Logs the learning activity of the current session.
+ */
 app.post("/log-session", async (req, res) => {
   try {
     const { topicTitle, hasSummary, hasFlashcards, hasQuiz, quizScore } = req.body;
@@ -207,11 +246,15 @@ app.post("/log-session", async (req, res) => {
 
     res.json({ ok: true });
   } catch (e) {
-    console.error("/log-session error:", e);
-    res.status(500).json({ error: e.message });
+    console.error("Error in /log-session route:", e.message || e);
+    res.status(500).json({ error: "Failed to log session" });
   }
 });
 
+/**
+ * GET /history
+ * Retrieves the recent learning history for the default user.
+ */
 app.get("/history", (req, res) => {
   sfConnection.execute({
     sqlText: `
@@ -228,8 +271,8 @@ app.get("/history", (req, res) => {
     `,
     complete: (err, stmt, rows) => {
       if (err) {
-        console.error("/history error:", err);
-        return res.status(500).json({ error: err.message });
+        console.error("Error fetching history from Snowflake:", err.message || err);
+        return res.status(500).json({ error: "Failed to fetch history" });
       }
 
       res.json({ history: rows });
